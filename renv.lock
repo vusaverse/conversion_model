@@ -29,6 +29,17 @@
       "Version": "1.2.0",
       "Source": "Repository"
     },
+    "vusa": {
+      "Package": "vusa",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "vusaverse",
+      "RemoteRepo": "vusa",
+      "RemoteRef": "main",
+      "RemoteSha": "80d317fc214634bb879da2e5e11f3246f37b820d"
+    },
     "zoo": {
       "Package": "zoo",
       "Version": "1.8-12",
