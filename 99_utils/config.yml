@@ -1,0 +1,22 @@
+# General Settings
+
+# Data Paths
+
+# Feature Engineering
+
+# Modeling
+rf_modelB:
+  trees: 219
+  mtry: 5
+  max_depth: 11
+  class_weights:
+    FALSE: 0.6
+    TRUE: 0.4
+
+rf_modelM:
+  trees: 223
+  mtry: 8
+  max_depth: 11
+  class_weights:
+    FALSE: 0.7
+    TRUE: 0.3
