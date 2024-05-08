@@ -19,10 +19,20 @@ renv::record("vusaverse/vusa")
 ## Restore packages from renv
 renv::restore(prompt = FALSE)
 
+## Load packages
+source("99_utils/load_packages.R")
+
+## Set system variables
+source("99_utils/set_systemvariables.R")
+
+## Load functions
+source("99_utils/read_and_write_settings_functions.R")
+
 
 ##' *TODO*
 ##' slack setup
 
+config <- yaml::read_yaml("99_utils/config.yml")
 
 ##' *INFO* clear_global_proj
 object_names <- ls(envir = .GlobalEnv)
