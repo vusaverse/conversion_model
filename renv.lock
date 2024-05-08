@@ -40,6 +40,11 @@
       "RemoteRef": "main",
       "RemoteSha": "80d317fc214634bb879da2e5e11f3246f37b820d"
     },
+    "vvconverter": {
+      "Package": "vvconverter",
+      "Version": "0.5.9",
+      "Source": "Repository"
+    },
     "zoo": {
       "Package": "zoo",
       "Version": "1.8-12",
