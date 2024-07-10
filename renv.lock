@@ -43,7 +43,7 @@
       "RemoteUsername": "vusaverse",
       "RemoteRepo": "vusa",
       "RemoteRef": "main",
-      "RemoteSha": "b291d8adaf1a1d4a87b37590a6a4b343901d59dd"
+      "RemoteSha": "09db5e438c90d015b3dec2c672de9f6e0934cb77"
     },
     "vvconverter": {
       "Package": "vvconverter",
