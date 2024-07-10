@@ -43,11 +43,16 @@
       "RemoteUsername": "vusaverse",
       "RemoteRepo": "vusa",
       "RemoteRef": "main",
-      "RemoteSha": "80d317fc214634bb879da2e5e11f3246f37b820d"
+      "RemoteSha": "b291d8adaf1a1d4a87b37590a6a4b343901d59dd"
     },
     "vvconverter": {
       "Package": "vvconverter",
       "Version": "0.5.9",
+      "Source": "Repository"
+    },
+    "vvsculptor": {
+      "Package": "vvsculptor",
+      "Version": "0.4.10",
       "Source": "Repository"
     },
     "zoo": {
