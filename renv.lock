@@ -2405,7 +2405,47 @@
       "RemoteUsername": "vusaverse",
       "RemoteRepo": "vusa",
       "RemoteRef": "main",
-      "RemoteSha": "b291d8adaf1a1d4a87b37590a6a4b343901d59dd"
+      "RemoteSha": "09db5e438c90d015b3dec2c672de9f6e0934cb77",
+      "Requirements": [
+        "BurStMisc",
+        "RCurl",
+        "checkmate",
+        "cli",
+        "data.table",
+        "dataMaid",
+        "digest",
+        "dplyr",
+        "findR",
+        "fs",
+        "fst",
+        "httr",
+        "janitor",
+        "lintr",
+        "lubridate",
+        "magrittr",
+        "plyr",
+        "pryr",
+        "purrr",
+        "readr",
+        "rex",
+        "rlang",
+        "rstudio.prefs",
+        "rstudioapi",
+        "scriptName",
+        "slackr",
+        "stats",
+        "stringi",
+        "stringr",
+        "this.path",
+        "tibble",
+        "tidyr",
+        "tidyselect",
+        "vroom",
+        "vvmover",
+        "xml2",
+        "yaml"
+      ],
+      "Hash": "124b6011debb3ad360ccde69590d0f4a"
     },
     "vvconverter": {
       "Package": "vvconverter",
@@ -2421,6 +2461,18 @@
         "stringr"
       ],
       "Hash": "6348c55a70e07408d9eccf3810597cc2"
+    },
+    "vvfiller": {
+      "Package": "vvfiller",
+      "Version": "0.6.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "dplyr",
+        "purrr",
+        "rlang"
+      ],
+      "Hash": "6f3e87f2bb7de7f64617a88f711f5d1a"
     },
     "vvmover": {
       "Package": "vvmover",
