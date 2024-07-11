@@ -1,4 +1,5 @@
 library(zoo)
+library(checkmate)
 
 ## Ignore NA's in cumulative functions
 cumfunc_na.rm <- function(x, cumfunc) {

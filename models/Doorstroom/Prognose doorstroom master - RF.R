@@ -612,7 +612,8 @@ dfAS_full <- dfAS_full %>%
              RES_gem_EC_per_jaar, RES_Aantal_no_shows_cum, RES_Aantal_NVD_cum,
              RES_Aantal_vakken_niet_gehaald_cum, RES_Aantal_EC_excl_extracurriculair_cum,
              RES_Aantal_NVD_relative, RES_Gemiddeld_poging_cum, Aantal_aanmeldingen_totaal,
-             Aantal_aanmeldingen_afgewezen, Aantal_aanmeldingen_gecreeerd), ~replace_na(.x, 0)),
+             Aantal_aanmeldingen_afgewezen, Aantal_aanmeldingen_gecreeerd, RES_Aantal_herkansingen_voor_jaar,
+             RES_Aantal_eindresultaten_voor_jaar, RES_Aantal_no_shows_voor_jaar), ~replace_na(.x, 0)),
     EC_to_go = coalesce(EC_to_go, OPL_Studielast_nominaal))
 
 
@@ -620,13 +621,13 @@ dfAS_full <- dfAS_full %>%
 
 ## Maybe change imputed values based on other data (knn)? Also beware of data leakage
 dfAS_full <- dfAS_full %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
     columns = c(vNA_Median, vNA_Median_VOP),
     overwrite_col = TRUE,
     statistic = median,
     fill_empty_group = TRUE) %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
     columns = vNA_Mode,
     overwrite_col = TRUE,

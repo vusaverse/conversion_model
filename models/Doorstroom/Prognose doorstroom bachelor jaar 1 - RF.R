@@ -447,13 +447,13 @@ dfAS_full <- dfAS_full %>%
 
 ## Maybe change imputed values based on other data (knn)? Also beware of data leakage
 dfAS_full <- dfAS_full %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
     columns = c(vNA_Median, vNA_Median_VOP),
     overwrite_col = TRUE,
     statistic = median,
     fill_empty_group = TRUE) %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
     columns = vNA_Mode,
     overwrite_col = TRUE,

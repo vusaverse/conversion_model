@@ -428,7 +428,8 @@ dfResultaten_aggr <- dfResultaten %>%
 dfAS_full <- dfAS_full %>%
   left_join(dfResultaten_aggr, by = c("INS_Studentnummer",
                                       "INS_Opleidingsnaam_2002",
-                                      "INS_Inschrijvingsjaar" = "RES_Academisch_jaar_beoordeling"))
+                                      "INS_Inschrijvingsjaar" = "RES_Academisch_jaar_beoordeling"),
+            relationship = "many-to-one")
 
 
 
@@ -607,13 +608,13 @@ vNA_Mode <- c("INS_Dagen_tussen_aanmelding_en_1_september",
 vNA_Median <- c("Nominaal_perc_lag2")
 
 dfAS_full <- dfAS_full %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Eerste_jaar_opleiding_en_instelling"),
     columns = c(vNA_Median),
     overwrite_col = TRUE,
     statistic = median,
     fill_empty_group = TRUE) %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Eerste_jaar_opleiding_en_instelling"),
     columns = vNA_Mode,
     overwrite_col = TRUE,
