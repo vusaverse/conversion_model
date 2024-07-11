@@ -23,6 +23,8 @@ basic_packages <- c(
   "utils",          # Used for utility functions
   "styler",         # Used for improving the style of script
   "vusa",           # Mainly to always have the addins
+  "vvmover",
+  "vvsculptor",
   "dplyr",          # Used for the dplyr environment
   "zoo",           #
   "ranger",           #
