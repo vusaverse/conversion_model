@@ -72,7 +72,7 @@ read_files <- function(bestand) {
 }
 
 dfAanmeldingen_raw <-
-  map_dfr(lAanmeldingen_bestandspaden[1], read_files)
+  map_dfr(lAanmeldingen_bestandspaden, read_files)
 
 ## OPLAS for NF and language data, TODO check for more features
 dfOpleidingen_raw <- read_file_proj("OPLAS_VU", base_dir = Sys.getenv("NETWORK_DIR"),
