@@ -8,7 +8,6 @@ vFeature_creation_years <- min(vTrain_years) - 2:1
 Dates <- read_file_proj("ACA_Dates", dir = "2. Geprepareerde data")
 ## Date of prognosis
 peildatum <- today()
-peildatum <- as.Date("2024-03-01")
 
 dfPeilperiode <- Dates %>%
   filter(ACA_Peildatum_invoer < peildatum) %>%
