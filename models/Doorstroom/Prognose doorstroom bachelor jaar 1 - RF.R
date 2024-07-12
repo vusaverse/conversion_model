@@ -28,9 +28,8 @@
 ## Settings
 
 model = "B1"
-wd = getwd()
 
-source(paste0(wd, "/models/Doorstroom/Doorstroom - config.R"))
+source("models/Doorstroom/Doorstroom - config.R")
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## 1. INLEZEN ####

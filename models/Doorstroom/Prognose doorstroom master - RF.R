@@ -28,11 +28,9 @@
 ## Settings
 model = "M"
 
-wd = getwd()
+source("models/Doorstroom/Doorstroom - config.R")
 
-source(paste0(wd, "/models/Doorstroom/Doorstroom - config.R"))
-
-source(paste0(wd, "/models/Doorstroom/helpers.R"))
+source("models/Doorstroom/helpers.R")
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## 1. INLEZEN ####

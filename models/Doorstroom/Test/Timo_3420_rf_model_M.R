@@ -31,9 +31,9 @@ model = "M"
 
 one_row_per_student = FALSE
 
-source("04. Analyseren/01. Structurele analyses/Inschrijvingenprognose/Random Forest/Doorstroom - config.R")
+source("models/Doorstroom/Test/Doorstroom - config.R")
 
-source("04. Analyseren/01. Structurele analyses/Inschrijvingenprognose/Random Forest/helpers.R")
+source("models/Doorstroom/helpers.R")
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## 1. INLEZEN ####
@@ -168,7 +168,7 @@ dfBachelors_raw <- readrds_csv(output = "3. Analyseset/Analysis_set_1.fst", colu
 
 ## Alle Resultaten
 dfPogingen_raw <- readrds_csv(output = "3. Analyseset/03. Resultaten/RES_Pogingen_geprepareerd.rds") %>%
-  filter(grepl("^B", INS_Opleidingsnaam_2002),
+  filter(grepl("^M", INS_Opleidingsnaam_2002),
          RES_Beoordeling_soort == 1) %>%
   ## Quite some duplicates with differing bestanddatums
   select(-RES_Bestand_datum) %>%
@@ -563,13 +563,13 @@ dfAS_full <- dfAS_full %>%
 
 ## Maybe change imputed values based on other data (knn)? Also beware of data leakage
 dfAS_full <- dfAS_full %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
     columns = c(vNA_Median, vNA_Median_VOP),
     overwrite_col = TRUE,
     statistic = median,
     fill_empty_group = TRUE) %>%
-  fill_df_with_agg_by_group(
+  vvfiller::fill_df_with_agg_by_group(
     group = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
     columns = vNA_Mode,
     overwrite_col = TRUE,
@@ -595,7 +595,7 @@ write_file(dfAS_full, filename, destination = "4. Analyses/Doorstroomprognose/Da
 ## 3. Modelleren ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-test_cutoff <- 2021
+test_cutoff <- 2022
 
 dfAS_trainval <- dfAS_full %>%
   filter(INS_Inschrijvingsjaar < test_cutoff,
@@ -767,7 +767,7 @@ combined_val %>%
 
 combined_val %>%
   roc_auc(truth = SUC_Type_uitstroom_studiejaar,
-          estimate = c(.pred_Diploma, `.pred_Nog studerend`, .pred_Uitval),
+          c(.pred_Diploma, `.pred_Nog studerend`, .pred_Uitval),
           estimator = "hand_till")
 
 
@@ -806,7 +806,7 @@ combined_test <- map2(lAS_test_year_split,
 ## Metrics
 combined_test %>%
   roc_auc(truth = SUC_Type_uitstroom_studiejaar,
-          estimate = c(.pred_Diploma, `.pred_Nog studerend`, .pred_Uitval),
+           c(.pred_Diploma, `.pred_Nog studerend`, .pred_Uitval),
           estimator = "hand_till")
 
 ## Get smape
