@@ -10,15 +10,12 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-##' *TODO*
-##' Use config values to replace hard coded values
-
-
 nTest_year = vvconverter::academic_year(lubridate::today()) + 1
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## 1. INLEZEN ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+library(tidymodels)
 
 vColumns <- c(
   "INS_Inschrijvingsjaar",
@@ -31,7 +28,7 @@ vColumns <- c(
   "INS_Hoofdneven"
 )
 
-dfAS_raw <- vusa::get_analysisset(columns = vColumns)
+dfAS_raw <- get_analysisset(columns = vColumns)
 
 ## Read aanmeldingen
 lAanmeldingen_bestandspaden <- list.files(
@@ -41,8 +38,7 @@ lAanmeldingen_bestandspaden <- list.files(
   pattern = "AAN_Aanmeldingen_per_dag_2",
   full.names = T)
 
-vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Opleidingsfase_BPM",
-                      "INS_Inschrijvingsjaar")
+
 
 read_files <- function(bestand) {
   gc()
@@ -78,7 +74,7 @@ dfAanmeldingen_raw <-
 dfOpleidingen_raw <- read_file_proj("OPLAS_VU", base_dir = Sys.getenv("NETWORK_DIR"),
                                     add_branch = FALSE,
                                     dir = "Output/_REPOSITORIES/opleidingen-analyseset/main/3. Analyseset/") %>%
-  select(INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, OPL_Numerus_fixus_selectie,
+  select(INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, OPL_Numerus_fixus_selectie, OPL_Numerus_fixus_selectie_capaciteit_max,
          OPL_Instructietaal) %>%
   distinct() %>%
   filter(INS_Inschrijvingsjaar <= 2022) %>%
@@ -88,8 +84,19 @@ dfOpleidingen_raw <- read_file_proj("OPLAS_VU", base_dir = Sys.getenv("NETWORK_D
 ## 2. BEWERKEN ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-gc()
-dfOpleidingen <- tibble(dfOpleidingen_raw)
+vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Opleidingsfase_BPM",
+                      "INS_Inschrijvingsjaar")
+
+dfOpleidingen <- dfOpleidingen_raw %>%
+  mutate(
+    ## Zet capaciteit om naar numeriek en maak van character waarden NA's
+    ## suppreswaarings omdat de str_detect een warning geeft bij NA
+    OPL_Numerus_fixus_selectie_capaciteit_max =  suppressWarnings(ifelse(
+      str_detect(OPL_Numerus_fixus_selectie_capaciteit_max, "[0-9]"),
+      as.numeric(OPL_Numerus_fixus_selectie_capaciteit_max),
+      NA_integer_)),
+    OPL_Numerus_fixus_selectie = !is.na(OPL_Numerus_fixus_selectie_capaciteit_max))
+
 
 ## Opleidingen in 2023 and 2024 are missing NF data still, so create new rows
 vNieuwe_NF <- c("B Gezondheid en Leven", "B Computer Science")
@@ -106,15 +113,15 @@ for (extra_jaar in (max(dfOpleidingen$INS_Inschrijvingsjaar) + 1) : (vvconverter
 ## Determine ingestroomde studenten
 dfAS <- dfAS_raw %>%
   filter(INS_Studiejaar == 1,
-         INS_Indicatie_actief_op_peildatum_status != "uitgeschreven") %>%
+         INS_Indicatie_actief_op_peildatum_status != "uitgeschreven",
+         INS_Hoofdneven == "Hoofdinschrijving") %>%
   mutate(Ingestroomd = TRUE) %>%
   select(INS_Inschrijvingsjaar, INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Opleidingsfase_BPM,
          Ingestroomd)
 
-
-nDagen_tot_1_sept_testdatum <- as.numeric(as.Date("2024-09-01") - today())
-
 ## Keep rows on test date only
+nDagen_tot_1_sept_testdatum <- as.numeric(as.Date("2024-09-01") - max(dfAanmeldingen_raw$AAN_Datum))
+## TODO what if day in a year is empty?
 dfAanmeldingen <- dfAanmeldingen_raw %>%
   filter(!is.na(INS_Opleidingsnaam_2002),
          AAN_Dagen_tot_1_sept == nDagen_tot_1_sept_testdatum) %>%
@@ -224,8 +231,6 @@ dfAanmeldingenB_test <- dfAanmeldingenB %>%
   filter(INS_Inschrijvingsjaar == nTest_year)
 
 ## Factor order is FALSE, TRUE (so weights are reversed)
-## Note: introduces more data leakage, as we calculate this for the whole set and not just for
-## training set, due to cross validation. Impact is low though, so I don't care.
 vClass_weightsB <- rev(dfAanmeldingenB_train %>%
                          count(Ingestroomd) %>%
                          pull(n) / nrow(dfAanmeldingenB_train))
@@ -253,7 +258,8 @@ vRemovalsB <- c(
   "INS_Inschrijvingsjaar_EI",
   "Conv_groep_lag_VU",
   "Conv_groep_lag_fac",
-  "Test_set"
+  "Test_set",
+  "OPL_Numerus_fixus_selectie_capaciteit_max"
 )
 
 
@@ -325,7 +331,8 @@ vRemovalsM <- c(
   "INS_Inschrijvingsjaar_EI",
   "Conv_groep_lag_VU",
   "Conv_groep_lag_fac",
-  "Test_set"
+  "Test_set",
+  "OPL_Numerus_fixus_selectie_capaciteit_max"
 )
 
 
