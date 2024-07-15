@@ -30,45 +30,9 @@ vColumns <- c(
 
 dfAS_raw <- get_analysisset(columns = vColumns)
 
-## Read aanmeldingen
-lAanmeldingen_bestandspaden <- list.files(
-  paste0(Sys.getenv("NETWORK_DIR"),
-         "Output/", Sys.getenv("BRANCH"), "/",
-         "2. Geprepareerde data/"),
-  pattern = "AAN_Aanmeldingen_per_dag_2",
-  full.names = T)
+dfAanmeldingen <- read_file_proj("dfAanmeldingen_geprepareerd",
+                dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/")
 
-
-
-read_files <- function(bestand) {
-  gc()
-  readRDS(bestand) %>%
-    select(AAN_Indicatie_EOI,
-           INS_Opleidingsnaam_2002,
-           INS_Opleidingsfase_BPM,
-           INS_Faculteit,
-           INS_Inschrijvingsjaar,
-           INS_Inschrijvingsjaar_EI,
-           AAN_Indicatie_EI,
-           INS_Hoogste_vooropleiding_soort,
-           INS_Studentnummer,
-           INS_Opleidingsvorm,
-           AAN_Dagen_tot_1_sept,
-           AAN_Datum,
-           AAN_Soort_aanmelding,
-           AAN_Status,
-           AAN_Substatus,
-           any_of("DEM_Nationaliteit_EER_Naam")) %>%
-    filter(AAN_Indicatie_EOI == TRUE,
-           !is.na(INS_Opleidingsnaam_2002),
-           INS_Opleidingsfase_BPM %in% c("B", "M"),
-           INS_Faculteit != "AUC",
-           INS_Inschrijvingsjaar != 2020) %>%
-    select(-AAN_Indicatie_EOI)
-}
-
-dfAanmeldingen_raw <-
-  map_dfr(lAanmeldingen_bestandspaden, read_files)
 
 ## OPLAS for NF and language data, TODO check for more features
 dfOpleidingen_raw <- read_file_proj("OPLAS_VU", base_dir = Sys.getenv("NETWORK_DIR"),
@@ -90,7 +54,7 @@ vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Oplei
 dfOpleidingen <- dfOpleidingen_raw %>%
   mutate(
     ## Zet capaciteit om naar numeriek en maak van character waarden NA's
-    ## suppreswaarings omdat de str_detect een warning geeft bij NA
+    ## suppreswarnings omdat de str_detect een warning geeft bij NA
     OPL_Numerus_fixus_selectie_capaciteit_max =  suppressWarnings(ifelse(
       str_detect(OPL_Numerus_fixus_selectie_capaciteit_max, "[0-9]"),
       as.numeric(OPL_Numerus_fixus_selectie_capaciteit_max),
@@ -101,7 +65,7 @@ dfOpleidingen <- dfOpleidingen_raw %>%
 ## Opleidingen in 2023 and 2024 are missing NF data still, so create new rows
 vNieuwe_NF <- c("B Gezondheid en Leven", "B Computer Science")
 
-for (extra_jaar in (max(dfOpleidingen$INS_Inschrijvingsjaar) + 1) : (vvconverter::academic_year(today()) + 1)) {
+for (extra_jaar in (max(dfOpleidingen$INS_Inschrijvingsjaar) + 1) : (vvconverter::academic_year(lubridate::today()) + 1)) {
   dfOpleidingen <- dfOpleidingen %>%
     filter(INS_Inschrijvingsjaar == max(INS_Inschrijvingsjaar)) %>%
     mutate(INS_Inschrijvingsjaar = extra_jaar,
@@ -113,22 +77,11 @@ for (extra_jaar in (max(dfOpleidingen$INS_Inschrijvingsjaar) + 1) : (vvconverter
 ## Determine ingestroomde studenten
 dfAS <- dfAS_raw %>%
   filter(INS_Studiejaar == 1,
-         INS_Indicatie_actief_op_peildatum_status != "uitgeschreven",
+         INS_Indicatie_actief_op_peildatum_status == "actief",
          INS_Hoofdneven == "Hoofdinschrijving") %>%
   mutate(Ingestroomd = TRUE) %>%
   select(INS_Inschrijvingsjaar, INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Opleidingsfase_BPM,
          Ingestroomd)
-
-## Keep rows on test date only
-nDagen_tot_1_sept_testdatum <- as.numeric(as.Date("2024-09-01") - max(dfAanmeldingen_raw$AAN_Datum))
-## TODO what if day in a year is empty?
-dfAanmeldingen <- dfAanmeldingen_raw %>%
-  filter(!is.na(INS_Opleidingsnaam_2002),
-         AAN_Dagen_tot_1_sept == nDagen_tot_1_sept_testdatum) %>%
-  filter(row_number() == 1,
-         .by = all_of(vAggregatieniveau)) %>%
-  mutate(Test_set = INS_Inschrijvingsjaar == nTest_year) %>%
-  distinct()
 
 ## Feature creation
 dfAanmeldingen <- dfAanmeldingen %>%
@@ -168,7 +121,7 @@ dfAanmeldingen <- dfAanmeldingen %>%
   left_join(dfOpleidingen, by = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"), relationship = "many-to-one") %>%
   mutate(Ingestroomd = replace_na(Ingestroomd, FALSE),
          Ingestroomd = as.factor(Ingestroomd),
-         INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "Voltijd", "Deeltijd-duaal")) %>%
+         INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
   mutate(Aangemeld_voor_VU_NF = any(OPL_Numerus_fixus_selectie, na.rm = TRUE),
          Afgewezen_voor_NF = any(OPL_Numerus_fixus_selectie & AAN_Substatus == "Afgekeurd door VU", na.rm = TRUE),
          .by = c(INS_Studentnummer, INS_Inschrijvingsjaar))
@@ -179,10 +132,10 @@ sGroep <- c("Buitenland", "INS_Opleidingsvorm", "INS_Opleidingsfase_BPM")
 Conversies_per_groep_lagged <- function(df, groep, min_aantal = 0, suffix = NULL) {
   ## Calculates the conversions of the defined group in the previous year.
   df %>%
-    summarise("Conv_groep{suffix}" := ifelse(n() >= min_aantal, sum(Ingestroomd == TRUE) / n(), NA_integer_),
+    summarise("Conv_groep{suffix}" := ifelse(n() >= min_aantal, sum(Ingestroomd == TRUE) / n(), NA_real_),
               .by = c(INS_Inschrijvingsjaar, all_of(groep))) %>%
     arrange(INS_Inschrijvingsjaar) %>%
-    mutate("Conv_groep_lag{suffix}" := lag(!!sym(paste0("Conv_groep", suffix)), n = 1),
+    mutate("Conv_groep_lag{suffix}" := dplyr::lag(!!sym(paste0("Conv_groep", suffix)), n = 1),
            .by = all_of(groep)) %>%
     select(-!!sym(paste0("Conv_groep", suffix)))
 }
