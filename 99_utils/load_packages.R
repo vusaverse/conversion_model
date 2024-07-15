@@ -25,10 +25,10 @@ basic_packages <- c(
   "vusa",           # Mainly to always have the addins
   "vvmover",
   "vvsculptor",
-  "dplyr",          # Used for the dplyr environment
   "zoo",           #
   "ranger",           #
-  "tidymodels"           #
+  "tidymodels",           #,
+  "dplyr"          # Used for the dplyr environment, keep last
 )
 
 # Load the packages into the library
