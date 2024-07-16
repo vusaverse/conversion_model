@@ -744,7 +744,7 @@ output <- "4. Analyses/Doorstroomprognose/Data/Resultaten/"
 date <- gsub("-", "", Sys.Date())
 
 write_file_proj(dfCombined_test,
-                "doorstroom_predictions_M_",
+                "doorstroom_predictions_M",
                 base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
                 dir = output,
                 add_branch = TRUE,
