@@ -751,7 +751,7 @@ write_file_proj(dfCombined_test,
                 extensions = "csv")
 
 write_file_proj(dfCombined_test,
-                paste0("doorstroom_predictions_M_", date),
+                paste0("doorstroom_predictions_M_P",peilperiode, "_", date),
                 base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
                 dir = paste0(output, "Archief/"),
                 add_branch = TRUE,
