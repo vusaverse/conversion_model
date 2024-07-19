@@ -433,7 +433,16 @@ dfResultaten_aggr <- dfResultaten %>%
 dfAS_full <- dfAS_full %>%
   left_join(dfResultaten_aggr, by = c("INS_Studentnummer",
                                       "INS_Opleidingsnaam_2002",
-                                      "INS_Inschrijvingsjaar" = "RES_Academisch_jaar_beoordeling"))
+                                      "INS_Inschrijvingsjaar" = "RES_Academisch_jaar_beoordeling")) %>%
+  ## Fill cumulative results with previous year values in case no results in year
+  arrange(INS_Inschrijvingsjaar) %>%
+  group_by(INS_Studentnummer, INS_Opleidingsnaam_2002) %>%
+  fill(RES_Gemiddeld_cijfer_cum_all, RES_Gemiddeld_cijfer_cum_laatste_poging, RES_Aantal_no_shows_cum,
+       RES_Aantal_NVD_cum, RES_Gemiddeld_poging_cum, RES_Aantal_EC_totaal, RES_Aantal_herkansingen_totaal,
+       RES_Aantal_vakken_cum, RES_Aantal_vakken_niet_gehaald_cum, RES_Aantal_EC_excl_extracurriculair_cum,
+       .direction = "down") %>%
+  ungroup()
+
 
 
 ## Overige RES_ toevoegen
