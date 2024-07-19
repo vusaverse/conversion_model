@@ -381,21 +381,6 @@ dfResultaten <- dfResultaten %>%
   left_join(dfUAS_Vakken, by = c("RES_Module_code" = "Code"),
             relationship = "many-to-one")
 
-## Date of prognosis
-peildatum <- today()
-
-dfPeilperiode <- Dates %>%
-  filter(ACA_Peildatum_invoer < peildatum) %>%
-  filter(ACA_Peildatum_invoer == max(ACA_Peildatum_invoer))
-
-peilperiode <- dfPeilperiode %>%
-  pull(ACA_Periode)
-
-peildatum_beoordeling <- dfPeilperiode %>%
-  pull(ACA_Peildatum)
-
-peildatum_beoordeling_md_str <- str_sub(peildatum_beoordeling, 6)
-
 
 ## RES_ tm P2, for consistent determination of period
 dfResultaten_aggr <- dfResultaten %>%
