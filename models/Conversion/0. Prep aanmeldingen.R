@@ -59,24 +59,47 @@ dfAanmeldingen_raw <-
 ## 2. BEWERKEN ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Opleidingsfase_BPM",
+                      "INS_Inschrijvingsjaar", "INS_Opleidingsvorm")
+
 ## Keep rows on test date only
 nDagen_tot_1_sept_testdatum <- as.numeric(as.Date("2024-09-01") - max(dfAanmeldingen_raw$AAN_Datum))
 ## TODO what if day in a year is empty?
-dfAanmeldingen <- dfAanmeldingen_raw %>%
+dfAanmeldingen_testdag <- dfAanmeldingen_raw %>%
+  mutate(Test_set = INS_Inschrijvingsjaar == nTest_year,
+         ## Match AS
+         INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
   filter(!is.na(INS_Opleidingsnaam_2002),
          AAN_Dagen_tot_1_sept == nDagen_tot_1_sept_testdatum) %>%
   filter(row_number() == 1,
          .by = all_of(vAggregatieniveau)) %>%
-  mutate(Test_set = INS_Inschrijvingsjaar == nTest_year) %>%
+
+  distinct()
+
+dfAanmeldingen_oktober <- dfAanmeldingen_raw %>%
+  mutate(Test_set = INS_Inschrijvingsjaar == nTest_year,
+         ## Match AS
+         INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
+  filter(!is.na(INS_Opleidingsnaam_2002),
+         AAN_Dagen_tot_1_sept > -30) %>%
+  filter(AAN_Dagen_tot_1_sept == min(AAN_Dagen_tot_1_sept),
+         .by = all_of(vAggregatieniveau)) %>%
+  filter(row_number() == 1,
+         .by = all_of(vAggregatieniveau)) %>%
   distinct()
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## BEWAAR & RUIM OP ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-write_file_proj(dfAanmeldingen,
+write_file_proj(dfAanmeldingen_testdag,
                 "dfAanmeldingen_geprepareerd",
                 dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/")
+
+
+write_file_proj(dfAanmeldingen_oktober,
+           "dfAanmeldingen_oktober",
+           dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/")
 
 clear_script_objects()
 

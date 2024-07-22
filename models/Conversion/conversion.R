@@ -25,7 +25,8 @@ vColumns <- c(
   "INS_Studiejaar",
   "INS_Indicatie_actief_op_peildatum_status",
   "INS_Soort_eerstejaars",
-  "INS_Hoofdneven"
+  "INS_Hoofdneven",
+  "INS_Opleidingsvorm_naam"
 )
 
 dfAS_raw <- get_analysisset(columns = vColumns)
@@ -47,9 +48,6 @@ dfOpleidingen_raw <- read_file_proj("OPLAS_VU", base_dir = Sys.getenv("NETWORK_D
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## 2. BEWERKEN ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Opleidingsfase_BPM",
-                      "INS_Inschrijvingsjaar")
 
 dfOpleidingen <- dfOpleidingen_raw %>%
   mutate(
@@ -79,9 +77,10 @@ dfAS <- dfAS_raw %>%
   filter(INS_Studiejaar == 1,
          INS_Indicatie_actief_op_peildatum_status == "actief",
          INS_Hoofdneven == "Hoofdinschrijving") %>%
-  mutate(Ingestroomd = TRUE) %>%
+  mutate(Ingestroomd = TRUE,
+         INS_Opleidingsvorm_naam = ifelse(INS_Opleidingsvorm_naam == "voltijd", "voltijd", "deeltijd")) %>%
   select(INS_Inschrijvingsjaar, INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Opleidingsfase_BPM,
-         Ingestroomd)
+         INS_Opleidingsvorm_naam, Ingestroomd)
 
 ## Feature creation
 dfAanmeldingen <- dfAanmeldingen %>%
@@ -117,11 +116,10 @@ dfAanmeldingen <- dfAanmeldingen %>%
 ## Add AS and opleidingen data, and create features from these
 dfAanmeldingen <- dfAanmeldingen %>%
   left_join(dfAS, by = c("INS_Studentnummer", "INS_Opleidingsfase_BPM", "INS_Opleidingsnaam_2002",
-                         "INS_Inschrijvingsjaar"), relationship = "one-to-one") %>%
+                         "INS_Inschrijvingsjaar", "INS_Opleidingsvorm" = "INS_Opleidingsvorm_naam"), relationship = "one-to-one") %>%
   left_join(dfOpleidingen, by = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"), relationship = "many-to-one") %>%
   mutate(Ingestroomd = replace_na(Ingestroomd, FALSE),
-         Ingestroomd = as.factor(Ingestroomd),
-         INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
+         Ingestroomd = as.factor(Ingestroomd)) %>%
   mutate(Aangemeld_voor_VU_NF = any(OPL_Numerus_fixus_selectie, na.rm = TRUE),
          Afgewezen_voor_NF = any(OPL_Numerus_fixus_selectie & AAN_Substatus == "Afgekeurd door VU", na.rm = TRUE),
          .by = c(INS_Studentnummer, INS_Inschrijvingsjaar))
@@ -238,12 +236,12 @@ dfResultB <- rf_fitB %>%
   cbind(predict(rf_fitB, dfAanmeldingenB_test, type = "prob"))
 
 dfCombined_testB <- dfAanmeldingenB_test %>%
-  select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar) %>%
+  select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, INS_Opleidingsvorm) %>%
   cbind(dfResultB)
 
 dfOutputB <- dfAanmeldingenB %>%
   left_join(dfCombined_testB, by = c("INS_Studentnummer", "INS_Opleidingsnaam_2002",
-                                     "INS_Inschrijvingsjaar"), relationship = "one-to-one")
+                                     "INS_Inschrijvingsjaar", "INS_Opleidingsvorm"), relationship = "one-to-one")
 
 ###########################################################
 ## Prognose - Master
@@ -311,12 +309,12 @@ dfResultM <- rf_fitM %>%
   cbind(predict(rf_fitM, dfAanmeldingenM_test, type = "prob"))
 
 dfCombined_testM <- dfAanmeldingenM_test %>%
-  select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar) %>%
+  select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, INS_Opleidingsvorm) %>%
   cbind(dfResultM)
 
 dfOutputM <- dfAanmeldingenM %>%
   left_join(dfCombined_testM, by = c("INS_Studentnummer", "INS_Opleidingsnaam_2002",
-                                     "INS_Inschrijvingsjaar"), relationship = "one-to-one")
+                                     "INS_Inschrijvingsjaar", "INS_Opleidingsvorm"), relationship = "one-to-one")
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Combineren ####
@@ -337,4 +335,3 @@ write_file(dfOutput_combined,
            save_csv = TRUE)
 
 clear_script_objects()
-
