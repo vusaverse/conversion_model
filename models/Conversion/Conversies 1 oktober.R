@@ -88,20 +88,3 @@ write_file(dfAanmeldingen_oktober,
            save_csv = TRUE)
 
 clear_script_objects()
-
-
-test1 <- dfAanmeldingen_oktober %>%
-  filter(INS_Opleidingsnaam_2002 == "B Business Analytics",
-         INS_Opleidingsfase_BPM == "B",
-         Ingestroomd,
-         INS_Inschrijvingsjaar == 2023)
-
-test2 <- dfAS %>%
-  filter(INS_Opleidingsnaam_2002 == "B Business Analytics",
-         INS_Opleidingsfase_BPM == "B",
-         INS_Inschrijvingsjaar == 2023)
-
-test2 %>%
-  filter(INS_Studentnummer %notin% test1$INS_Studentnummer)
-
-
