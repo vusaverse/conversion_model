@@ -71,8 +71,8 @@ dfAanmeldingen_testdag <- dfAanmeldingen_raw %>%
          INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
   filter(!is.na(INS_Opleidingsnaam_2002),
          AAN_Dagen_tot_1_sept == nDagen_tot_1_sept_testdatum) %>%
-  filter(row_number() == 1,
-         .by = all_of(vAggregatieniveau)) %>%
+  # filter(row_number() == 1,
+  #        .by = all_of(vAggregatieniveau)) %>%
 
   distinct()
 
@@ -84,8 +84,8 @@ dfAanmeldingen_oktober <- dfAanmeldingen_raw %>%
          AAN_Dagen_tot_1_sept > -30) %>%
   filter(AAN_Dagen_tot_1_sept == min(AAN_Dagen_tot_1_sept),
          .by = all_of(vAggregatieniveau)) %>%
-  filter(row_number() == 1,
-         .by = all_of(vAggregatieniveau)) %>%
+  # filter(row_number() == 1,
+  #        .by = all_of(vAggregatieniveau)) %>%
   distinct()
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

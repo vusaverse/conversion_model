@@ -95,8 +95,10 @@ dfAanmeldingen <- dfAanmeldingen %>%
                                      pull(INS_Studentnummer))) %>%
   mutate(nAanmeldingen_VU_gelijke_fase = n(), .by = c(INS_Studentnummer, INS_Opleidingsfase_BPM,
                                                       INS_Inschrijvingsjaar)) %>%
+  mutate(nAanmeldingen_gelijke_opl = n(), .by = c(INS_Studentnummer, INS_Opleidingsfase_BPM,
+                                                  INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar)) %>%
   mutate(Buitenland = INS_Hoogste_vooropleiding_soort == "buitenland",
-         ## Aanmeldingen from April onwards have high coversion
+         ## Aanmeldingen from April onwards have high conversion
          Aanmelding_vanaf_april = month(AAN_Datum) %in% c(4, 5, 6),
          deadlineaanmelder = case_when(
            INS_Opleidingsfase_BPM == "B" & AAN_Datum_aangepast %in% c(as.Date("2024-04-30"),
@@ -116,7 +118,8 @@ dfAanmeldingen <- dfAanmeldingen %>%
 ## Add AS and opleidingen data, and create features from these
 dfAanmeldingen <- dfAanmeldingen %>%
   left_join(dfAS, by = c("INS_Studentnummer", "INS_Opleidingsfase_BPM", "INS_Opleidingsnaam_2002",
-                         "INS_Inschrijvingsjaar", "INS_Opleidingsvorm" = "INS_Opleidingsvorm_naam"), relationship = "one-to-one") %>%
+                         "INS_Inschrijvingsjaar", "INS_Opleidingsvorm" = "INS_Opleidingsvorm_naam"),
+            relationship = "many-to-one", multiple = "first") %>% ## TODO better handling of dupl. aanm.
   left_join(dfOpleidingen, by = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"), relationship = "many-to-one") %>%
   mutate(Ingestroomd = replace_na(Ingestroomd, FALSE),
          Ingestroomd = as.factor(Ingestroomd)) %>%
@@ -241,7 +244,8 @@ dfCombined_testB <- dfAanmeldingenB_test %>%
 
 dfOutputB <- dfAanmeldingenB %>%
   left_join(dfCombined_testB, by = c("INS_Studentnummer", "INS_Opleidingsnaam_2002",
-                                     "INS_Inschrijvingsjaar", "INS_Opleidingsvorm"), relationship = "one-to-one")
+                                     "INS_Inschrijvingsjaar", "INS_Opleidingsvorm"), relationship = "many-to-one",
+            multiple = "first")
 
 ###########################################################
 ## Prognose - Master
@@ -314,7 +318,8 @@ dfCombined_testM <- dfAanmeldingenM_test %>%
 
 dfOutputM <- dfAanmeldingenM %>%
   left_join(dfCombined_testM, by = c("INS_Studentnummer", "INS_Opleidingsnaam_2002",
-                                     "INS_Inschrijvingsjaar", "INS_Opleidingsvorm"), relationship = "one-to-one")
+                                     "INS_Inschrijvingsjaar", "INS_Opleidingsvorm"), relationship = "many-to-one",
+            multiple = "first")
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Combineren ####
