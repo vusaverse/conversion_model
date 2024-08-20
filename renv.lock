@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.3.3",
+    "Version": "4.4.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -113,7 +113,14 @@
     "RCurl": {
       "Package": "RCurl",
       "Version": "1.98-1.16",
-      "Source": "Repository"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "bitops",
+        "methods"
+      ],
+      "Hash": "ddbdf53d15b47be4407ede6914f56fbb"
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -2091,11 +2098,6 @@
       ],
       "Hash": "960e2ae9e09656611e0b8214ad543207"
     },
-    "styler": {
-      "Package": "styler",
-      "Version": "1.10.3",
-      "Source": "Repository"
-    },
     "survival": {
       "Package": "survival",
       "Version": "3.5-8",
@@ -2403,7 +2405,47 @@
       "RemoteUsername": "vusaverse",
       "RemoteRepo": "vusa",
       "RemoteRef": "main",
-      "RemoteSha": "09db5e438c90d015b3dec2c672de9f6e0934cb77"
+      "RemoteSha": "09db5e438c90d015b3dec2c672de9f6e0934cb77",
+      "Requirements": [
+        "BurStMisc",
+        "RCurl",
+        "checkmate",
+        "cli",
+        "data.table",
+        "dataMaid",
+        "digest",
+        "dplyr",
+        "findR",
+        "fs",
+        "fst",
+        "httr",
+        "janitor",
+        "lintr",
+        "lubridate",
+        "magrittr",
+        "plyr",
+        "pryr",
+        "purrr",
+        "readr",
+        "rex",
+        "rlang",
+        "rstudio.prefs",
+        "rstudioapi",
+        "scriptName",
+        "slackr",
+        "stats",
+        "stringi",
+        "stringr",
+        "this.path",
+        "tibble",
+        "tidyr",
+        "tidyselect",
+        "vroom",
+        "vvmover",
+        "xml2",
+        "yaml"
+      ],
+      "Hash": "124b6011debb3ad360ccde69590d0f4a"
     },
     "vvconverter": {
       "Package": "vvconverter",
@@ -2445,11 +2487,6 @@
         "utils"
       ],
       "Hash": "63a98517187420192640d6c0abee4736"
-    },
-    "vvsculptor": {
-      "Package": "vvsculptor",
-      "Version": "0.4.10",
-      "Source": "Repository"
     },
     "warp": {
       "Package": "warp",

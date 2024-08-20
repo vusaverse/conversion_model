@@ -24,7 +24,6 @@ basic_packages <- c(
   "styler",         # Used for improving the style of script
   "vusa",           # Mainly to always have the addins
   "vvmover",
-  "vvsculptor",
   "zoo",           #
   "ranger",           #
   "tidymodels",           #,
