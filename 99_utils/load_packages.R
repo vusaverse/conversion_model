@@ -35,6 +35,7 @@ suppressMessages(purrr::walk(basic_packages, ~library(.x, character.only = TRUE,
 
 if (interactive()) {
   library(tidylog)
+  library(styler)
 }
 
 vusa::clear_script_objects()
