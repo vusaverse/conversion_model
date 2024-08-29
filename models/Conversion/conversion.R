@@ -165,9 +165,24 @@ dfAanmeldingen <- dfAanmeldingen %>%
          Conv_groep_lag_fac = coalesce(Conv_groep_lag_fac, Conv_groep_lag_VU),
          Conv_groep_lag_opl = coalesce(Conv_groep_lag_opl, Conv_groep_lag_fac))
 
+non_VU_penvoerders <- c(
+  "B Liberal Arts and Sciences (joint degree)",
+  "B Natuur- en Sterrenkunde (joint degree)",
+  "B Scheikunde (joint degree)",
+  "M Chemistry (joint degree)",
+  "M Computational Science (joint degree)",
+  "M Oral Health Sciences (joint degree)",
+  "M Physics and Astronomy (joint degree)",
+  "M Research Master Business Data Science (joint degree)",
+  "M Tinbergen Institute Research Master in Economics (joint degree)"
+)
+
 ## Joint degrees are weird
 dfAanmeldingen <- dfAanmeldingen %>%
-  filter(str_detect(INS_Opleidingsnaam_2002, "joint degree", negate = TRUE))
+  filter(INS_Opleidingsnaam_2002 %notin% non_VU_penvoerders) %>%
+  mutate(joint_degree = grepl("joint degree", INS_Opleidingsnaam_2002)) %>%
+  filter(INS_Inschrijvingsjaar >= 2022)
+  #filter(str_detect(INS_Opleidingsnaam_2002, "joint degree", negate = TRUE)) %>%
 
 ###########################################################
 ## Prognose - Bachelor
@@ -176,7 +191,7 @@ dfAanmeldingen <- dfAanmeldingen %>%
 dfAanmeldingenB <- dfAanmeldingen %>%
   filter(INS_Opleidingsfase_BPM == "B",
          ## GNK is always full anyway, so no need to predict
-         INS_Faculteit != "GNK",
+         #INS_Faculteit != "GNK",
          INS_Inschrijvingsjaar >= 2018)
 
 dfAanmeldingenB_train <- dfAanmeldingenB %>%
@@ -195,7 +210,7 @@ rf_modelB <- rand_forest(mode = "classification",
   set_engine("ranger",
              class.weights = vClass_weightsB,
              max.depth = 11,
-             always.split.variables = "INS_Opleidingsnaam_2002",
+             always.split.variables = c("INS_Opleidingsnaam_2002"),
              ## Documentation lies, uses only 1 thread by default
              num.threads = 4)
 
@@ -213,7 +228,8 @@ vRemovalsB <- c(
   "Conv_groep_lag_VU",
   "Conv_groep_lag_fac",
   "Test_set",
-  "OPL_Numerus_fixus_selectie_capaciteit_max"
+  "OPL_Numerus_fixus_selectie_capaciteit_max",
+  "AAN_AD_Groep_Omschrijving"
 )
 
 
@@ -271,7 +287,7 @@ rf_modelM <- rand_forest(mode = "classification",
   set_engine("ranger",
              class.weights = vClass_weightsM,
              max.depth = 11,
-             #always.split.variables = "INS_Opleidingsnaam_2002",
+             #always.split.variables = "DEM_Nationaliteit_EER_Naam",
              ## Documentation lies, uses only 1 thread by default
              num.threads = 4)
 
@@ -287,7 +303,8 @@ vRemovalsM <- c(
   "Conv_groep_lag_VU",
   "Conv_groep_lag_fac",
   "Test_set",
-  "OPL_Numerus_fixus_selectie_capaciteit_max"
+  "OPL_Numerus_fixus_selectie_capaciteit_max",
+  "AAN_AD_Groep_Omschrijving"
 )
 
 
@@ -329,14 +346,28 @@ dfOutput_combined <- dfOutputB %>%
   arrange(desc(INS_Inschrijvingsjaar)) %>%
   mutate(INS_Studentnummer = hash_var(INS_Studentnummer))
 
-
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## BEWAAR & RUIM OP ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+date <- gsub("-", "", Sys.Date())
 
 write_file(dfOutput_combined,
            "Conversieprognose_resultaat",
            "Tableau/Git voor Tableau/Data/F. Prognoses/VU-Instroomprognose/",
            save_csv = TRUE)
 
-clear_script_objects()
+write_file_proj(dfOutput_combined, "Conversieprognose_resultaat",
+                base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
+                dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Resultaat",
+                extensions = "rds"
+)
+
+write_file_proj(dfOutput_combined, paste("Conversieprognose_resultaat", date),
+                base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
+                dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Resultaat/Archief",
+                extensions = "rds"
+)
+
+
+#clear_script_objects()
