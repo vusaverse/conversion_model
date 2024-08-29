@@ -43,7 +43,7 @@ read_files <- function(bestand) {
            AAN_Soort_aanmelding,
            AAN_Status,
            AAN_Substatus,
-           any_of("DEM_Nationaliteit_EER_Naam")) %>%
+           any_of(c("DEM_Nationaliteit_EER_Naam", 'AAN_AD_Groep_Omschrijving'))) %>%
     filter(AAN_Indicatie_EOI == TRUE,
            !is.na(INS_Opleidingsnaam_2002),
            INS_Opleidingsfase_BPM %in% c("B", "M"),
