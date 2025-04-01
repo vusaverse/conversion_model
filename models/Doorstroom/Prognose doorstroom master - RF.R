@@ -437,7 +437,7 @@ dfAS_full <- dfAS_full %>%
   ## Fill cumulative results with previous year values in case no results in year
   arrange(INS_Inschrijvingsjaar) %>%
   group_by(INS_Studentnummer, INS_Opleidingsnaam_2002) %>%
-  fill(RES_Gemiddeld_cijfer_cum_all, RES_Gemiddeld_cijfer_cum_laatste_poging, RES_Aantal_no_shows_cum,
+  fill(RES_Gemiddeld_cijfer_cum_all, RES_Aantal_no_shows_cum,
        RES_Aantal_NVD_cum, RES_Gemiddeld_poging_cum, RES_Aantal_EC_totaal, RES_Aantal_herkansingen_totaal,
        RES_Aantal_vakken_cum, RES_Aantal_vakken_niet_gehaald_cum, RES_Aantal_EC_excl_extracurriculair_cum,
        .direction = "down") %>%
