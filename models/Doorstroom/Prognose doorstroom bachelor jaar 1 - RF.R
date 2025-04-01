@@ -48,6 +48,7 @@ vModelvariabelen <- c("DEM_Geslacht",
                       "INS_Dubbele_studie_VU",
                       "INS_Hoofdneven",
                       "INS_Hoogste_vooropleiding_soort_cat",
+                      "INS_Indicatie_actief_op_peildatum_status",
                       "INS_Opleiding_uitgeloot_ja_nee",
                       "INS_Opleidingsnaam_2002",
                       "INS_Opleidingsvorm_naam",
@@ -94,8 +95,7 @@ vModelvariabelen <- c("DEM_Geslacht",
 vFiltervariabelen <- c("INS_Studentnummer",
                        "INS_Studiejaar",
                        "INS_Inschrijvingsjaar",
-                       "INS_Opleidingsfase_BPM",
-                       "INS_Uitschrijving_voor_1_feb")
+                       "INS_Opleidingsfase_BPM")
 
 ## For analysis in Tableau or feature engineering
 vExtravariabelen <- c("INS_Faculteit",
@@ -118,8 +118,8 @@ dfAS_raw <- readrds_csv(output = "3. Analyseset/Analysis_set_1.fst", columns = c
   filter(INS_Studiejaar == 1,
          INS_Inschrijvingsjaar %in% c(vTrain_years, vFeature_creation_years, vTest_years),
          INS_Opleidingsfase_BPM == "B",
-         !INS_Uitschrijving_voor_1_feb,
          INS_Hoofdneven == "Hoofdinschrijving",
+         INS_Indicatie_actief_op_peildatum_status != "uitgeschreven",
          !INS_Opleidingsnaam_2002 %in% vUVA_first_opleidingen)
 
 
@@ -223,7 +223,21 @@ for (jaar in (max_jaar_NF_Data + 1):max(vTest_years)) {
 
 dfOpleidingen <- dfOpleidingen %>%
   mutate(OPL_Numerus_fixus_selectie = replace_na(OPL_Numerus_fixus_selectie, FALSE)) %>%
+  group_by(INS_Opleidingsnaam_2002) %>%
+  arrange(INS_Inschrijvingsjaar) %>%
+  fill(c(OPL_BSA_EC_eis_aug_jr1, OPL_Instructietaal), .direction = "downup") %>%
+  ungroup() %>%
   distinct()
+
+## Add new opleiding
+dfOpleidingen <- dfOpleidingen %>%
+  rbind(tibble(
+    INS_Opleidingsnaam_2002 = "B Econometrics and Data Science",
+    INS_Inschrijvingsjaar = 2024,
+    OPL_Numerus_fixus_selectie = FALSE,
+    OPL_BSA_EC_eis_aug_jr1 = 42,
+    OPL_Instructietaal = "Engels"
+  ))
 
 
 ## Use result dataset directly, for consistent results regardless of date of upload of results
