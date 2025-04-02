@@ -695,14 +695,14 @@ output <- "4. Analyses/Doorstroomprognose/Data/Resultaten/"
 date <- gsub("-", "", Sys.Date())
 
 write_file_proj(dfCombined_test,
-                "doorstroom_predictions_B2+",
+                "doorstroom_predictions_B2",
                 base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
                 dir = output,
                 add_branch = TRUE,
                 extensions = "csv")
 
 write_file_proj(dfCombined_test,
-                paste0("doorstroom_predictions_B2+_P",peilperiode, "_", date),
+                paste0("doorstroom_predictions_B2_P",peilperiode, "_", date),
                 base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
                 dir = paste0(output, "Archief/"),
                 add_branch = TRUE,
