@@ -1,5 +1,5 @@
-vTest_years <- 2023
-vTrain_years <- c(2018, 2020, 2021, 2022)
+vTest_years <- 2024
+vTrain_years <- c(2018, 2020, 2021, 2022, 2023)
 
 ## Years solely used for feature engineering, not training. Should be the two years prior to training
 vFeature_creation_years <- min(vTrain_years) - 2:1
