@@ -65,7 +65,7 @@ vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Oplei
 testdatum <- today()
 
 ## Keep rows on test date only
-nDagen_tot_1_sept_testdatum <- as.numeric(as.Date("2024-09-01") - testdatum)
+nDagen_tot_1_sept_testdatum <- as.numeric(as.Date(paste0(vvconverter::academic_year(testdatum) + 1, "-09-01")) - testdatum)
 ## TODO what if day in a year is empty?
 dfAanmeldingen_testdag <- dfAanmeldingen_raw %>%
   mutate(Test_set = INS_Inschrijvingsjaar == nTest_year,
