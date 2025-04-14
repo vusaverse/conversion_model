@@ -10,13 +10,13 @@
 ##
 ## ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-nTest_year = vvconverter::academic_year(lubridate::today()) + 1
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## 1. INLEZEN ####
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 library(tidymodels)
 
+## Load AS for determining historic outcome
 vColumns <- c(
   "INS_Inschrijvingsjaar",
   "INS_Opleidingsfase_BPM",
@@ -60,7 +60,7 @@ dfOpleidingen <- dfOpleidingen_raw %>%
     OPL_Numerus_fixus_selectie = !is.na(OPL_Numerus_fixus_selectie_capaciteit_max))
 
 
-## Opleidingen in 2023 and 2024 are missing NF data still, so create new rows
+## Opleidingen from 2023 onwards are missing NF data still, so create new rows
 vNieuwe_NF <- c("B Gezondheid en Leven", "B Computer Science")
 
 for (extra_jaar in (max(dfOpleidingen$INS_Inschrijvingsjaar) + 1) : (vvconverter::academic_year(lubridate::today()) + 1)) {
@@ -344,7 +344,8 @@ dfOutputM <- dfAanmeldingenM %>%
 dfOutput_combined <- dfOutputB %>%
   rbind(dfOutputM) %>%
   arrange(desc(INS_Inschrijvingsjaar)) %>%
-  mutate(INS_Studentnummer = hash_var(INS_Studentnummer))
+  mutate(INS_Studentnummer = hash_var(INS_Studentnummer),
+         prediction_date = testdatum)
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## BEWAAR & RUIM OP ####
@@ -370,4 +371,4 @@ write_file_proj(dfOutput_combined, paste("Conversieprognose_resultaat", date),
 )
 
 
-#clear_script_objects()
+clear_script_objects()

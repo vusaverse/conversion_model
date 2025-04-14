@@ -27,6 +27,7 @@ lAanmeldingen_bestandspaden <- list.files(
 
 read_files <- function(bestand) {
   gc()
+  print(bestand)
   readRDS(bestand) %>%
     select(AAN_Indicatie_EOI,
            INS_Opleidingsnaam_2002,
@@ -62,7 +63,7 @@ dfAanmeldingen_raw <-
 vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Opleidingsfase_BPM",
                       "INS_Inschrijvingsjaar", "INS_Opleidingsvorm")
 
-testdatum <- today()
+
 
 ## Keep rows on test date only
 nDagen_tot_1_sept_testdatum <- as.numeric(as.Date(paste0(vvconverter::academic_year(testdatum) + 1, "-09-01")) - testdatum)
