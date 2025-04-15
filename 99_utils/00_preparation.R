@@ -13,8 +13,8 @@
 Sys.setenv("BRANCH" = system("git branch --show-current", intern = TRUE))
 
 ## Latest vusa version
-renv::install("vusaverse/vusa", rebuild = TRUE, prompt = FALSE)
-renv::record("vusaverse/vusa")
+# renv::install("vusaverse/vusa", rebuild = TRUE, prompt = FALSE)
+# renv::record("vusaverse/vusa")
 
 ## Restore packages from renv
 renv::restore(prompt = FALSE)
