@@ -63,12 +63,17 @@ dfAanmeldingen_raw <-
 vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Opleidingsfase_BPM",
                       "INS_Inschrijvingsjaar", "INS_Opleidingsvorm")
 
+dfAanmeldingen <- dfAanmeldingen_raw %>%
+  arrange(INS_Inschrijvingsjaar, desc(AAN_Dagen_tot_1_sept)) %>%
+  mutate(Dagen_in_substatus = row_number(),
+         .by = c(all_of(vAggregatieniveau), AAN_Datum, AAN_Substatus))
+
 
 
 ## Keep rows on test date only
 nDagen_tot_1_sept_testdatum <- as.numeric(as.Date(paste0(vvconverter::academic_year(testdatum) + 1, "-09-01")) - testdatum)
 ## TODO what if day in a year is empty?
-dfAanmeldingen_testdag <- dfAanmeldingen_raw %>%
+dfAanmeldingen_testdag <- dfAanmeldingen %>%
   mutate(Test_set = INS_Inschrijvingsjaar == nTest_year,
          ## Match AS
          INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
