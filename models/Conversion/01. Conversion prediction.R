@@ -303,8 +303,8 @@ vRemovalsM <- c(
   "Conv_groep_lag_VU",
   "Conv_groep_lag_fac",
   "Test_set",
-  "OPL_Numerus_fixus_selectie_capaciteit_max",
-  "AAN_AD_Groep_Omschrijving"
+  "OPL_Numerus_fixus_selectie_capaciteit_max"
+  #"AAN_AD_Groep_Omschrijving"
 )
 
 
@@ -315,7 +315,7 @@ rf_recipeM <-
   step_novel(AAN_Substatus, AAN_Status) %>%
   step_string2factor(all_nominal_predictors()) %>%
   step_unknown(c(AAN_Substatus, INS_Opleidingsnaam_2002, INS_Hoogste_vooropleiding_soort,
-                 AAN_Soort_aanmelding)) %>%
+                 AAN_Soort_aanmelding, AAN_AD_Groep_Omschrijving)) %>%
   step_rm(all_of(vRemovalsM))
 
 rf_wflowM <- workflow() %>%
