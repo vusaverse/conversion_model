@@ -119,7 +119,7 @@ dfAS_raw <- readrds_csv(output = "3. Analyseset/Analysis_set_1.fst", columns = c
          INS_Inschrijvingsjaar %in% c(vTrain_years, vFeature_creation_years, vTest_years),
          INS_Opleidingsfase_BPM == "B",
          INS_Hoofdneven == "Hoofdinschrijving",
-         INS_Indicatie_actief_op_peildatum_status != "uitgeschreven",
+         INS_Indicatie_actief_op_peildatum_status %in% inschrijvingstatus_peildatum,
          !INS_Opleidingsnaam_2002 %in% vUVA_first_opleidingen)
 
 

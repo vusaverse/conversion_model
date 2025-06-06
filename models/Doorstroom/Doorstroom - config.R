@@ -22,6 +22,9 @@ peildatum_beoordeling <- dfPeilperiode %>%
 peildatum_beoordeling_md_str <- str_sub(peildatum_beoordeling, 6)
 
 
+inschrijvingstatus_peildatum = c("actief")
+
+
 ## Gridsearched hyperparameters
 dfHyperparameters <- read_file_proj("Hyperparameters_config", dir = "4. Analyses/Doorstroomprognose/Gridsearch/", extension = "csv")
 

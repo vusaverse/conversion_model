@@ -120,9 +120,8 @@ dfAS_full_raw <- readrds_csv(output = "3. Analyseset/Analysis_set_1.fst", column
   filter(INS_Studiejaar > 1,
          INS_Inschrijvingsjaar %in% c(vTrain_years, vTest_years, vFeature_creation_years),
          INS_Opleidingsfase_BPM == "B",
-         ## Filter out students who unregistered before February, as we predict in February
-         month(INS_Datum_uitschrijving) > 1 & month(INS_Datum_uitschrijving) <= 8,
          INS_Hoofdneven == "Hoofdinschrijving",
+         INS_Indicatie_actief_op_peildatum_status %in% inschrijvingstatus_peildatum,
          !INS_Opleidingsnaam_2002 %in% vUVA_first_opleidingen)
 
 

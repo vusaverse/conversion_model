@@ -120,8 +120,8 @@ dfAS_raw <- readrds_csv(output = "3. Analyseset/Analysis_set_1.fst", columns = c
   filter(INS_Inschrijvingsjaar %in% c(vTrain_years, vTest_years, vFeature_creation_years),
          INS_Opleidingsfase_BPM == "M",
          #!grepl("joint degree", INS_Opleidingsnaam_2002),
-         month(INS_Datum_uitschrijving) > 1 & month(INS_Datum_uitschrijving) <= 8,
          INS_Hoofdneven == "Hoofdinschrijving",
+         INS_Indicatie_actief_op_peildatum_status %in% inschrijvingstatus_peildatum,
          !INS_Opleidingsnaam_2002 %in% vUVA_first_opleidingen)
 
 
