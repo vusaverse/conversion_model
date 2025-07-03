@@ -68,7 +68,7 @@ dfAanmeldingen <- dfAanmeldingen_raw %>%
   mutate(Dagen_in_substatus = row_number(),
          .by = c(all_of(vAggregatieniveau), AAN_Datum, AAN_Substatus))
 
-
+rm(dfAanmeldingen_raw)
 
 ## Keep rows on test date only
 nDagen_tot_1_sept_testdatum <- as.numeric(as.Date(paste0(vvconverter::academic_year(testdatum) + 1, "-09-01")) - testdatum)
