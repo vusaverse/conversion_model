@@ -180,8 +180,9 @@ non_VU_penvoerders <- c(
 ## Joint degrees are weird
 dfAanmeldingen <- dfAanmeldingen %>%
   filter(INS_Opleidingsnaam_2002 %notin% non_VU_penvoerders) %>%
-  mutate(joint_degree = grepl("joint degree", INS_Opleidingsnaam_2002)) %>%
-  filter(INS_Inschrijvingsjaar >= 2022)
+  mutate(joint_degree = grepl("joint degree", INS_Opleidingsnaam_2002)) #%>%
+  # filter(DEM_Nationaliteit_EER_Naam != "NL",
+  #        INS_Inschrijvingsjaar >= 2022)
   #filter(str_detect(INS_Opleidingsnaam_2002, "joint degree", negate = TRUE)) %>%
 
 ###########################################################
