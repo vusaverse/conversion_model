@@ -124,7 +124,7 @@ dfAanmeldingen <- dfAanmeldingen %>%
   mutate(Ingestroomd = replace_na(Ingestroomd, FALSE),
          Ingestroomd = as.factor(Ingestroomd)) %>%
   mutate(Aangemeld_voor_VU_NF = any(OPL_Numerus_fixus_selectie, na.rm = TRUE),
-         Afgewezen_voor_NF = any(OPL_Numerus_fixus_selectie & AAN_Substatus == "Afgekeurd door VU", na.rm = TRUE),
+         Afgewezen_voor_NF = any(OPL_Numerus_fixus_selectie & AAN_Substatus %in% c("Afgekeurd door VU", "Terug door student"), na.rm = TRUE) & AAN_Status != "Afgewezen",
          .by = c(INS_Studentnummer, INS_Inschrijvingsjaar))
 
 ## Historical conversions
