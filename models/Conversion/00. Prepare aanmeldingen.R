@@ -79,12 +79,11 @@ dfAanmeldingen_testdag <- dfAanmeldingen %>%
          INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
   filter(!is.na(INS_Opleidingsnaam_2002),
          AAN_Dagen_tot_1_sept == nDagen_tot_1_sept_testdatum) %>%
-  # filter(row_number() == 1,
-  #        .by = all_of(vAggregatieniveau)) %>%
+  distinct() %>%
+  mutate(perc_afgewezen = sum(AAN_Status == "Afgewezen") / n(),
+         .by = c(INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar))
 
-  distinct()
-
-dfAanmeldingen_oktober <- dfAanmeldingen_raw %>%
+dfAanmeldingen_oktober <- dfAanmeldingen %>%
   mutate(Test_set = INS_Inschrijvingsjaar == nTest_year,
          ## Match AS
          INS_Opleidingsvorm = ifelse(INS_Opleidingsvorm == "Voltijd", "voltijd", "deeltijd")) %>%
@@ -94,7 +93,32 @@ dfAanmeldingen_oktober <- dfAanmeldingen_raw %>%
          .by = all_of(vAggregatieniveau)) %>%
   # filter(row_number() == 1,
   #        .by = all_of(vAggregatieniveau)) %>%
-  distinct()
+  distinct() %>%
+  mutate(perc_afgewezen_okt = sum(AAN_Status == "Afgewezen") / n(),
+         .by = c(INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar))
+
+dfRatios_afwijzingen <- dfAanmeldingen_testdag %>%
+  select(INS_Inschrijvingsjaar, INS_Opleidingsnaam_2002, INS_Opleidingsfase_BPM, perc_afgewezen) %>%
+  distinct() %>%
+  left_join(dfAanmeldingen_oktober %>%
+              select(INS_Inschrijvingsjaar, INS_Opleidingsnaam_2002, perc_afgewezen_okt) %>%
+              distinct(),
+            by = c("INS_Opleidingsnaam_2002", "INS_Inschrijvingsjaar"),
+            relationship = "one-to-one") %>%
+  arrange(INS_Inschrijvingsjaar) %>%
+  mutate(perc_afgewezen_okt_lag = lag(perc_afgewezen_okt),
+         .by = c(INS_Opleidingsnaam_2002)) %>%
+  filter(INS_Inschrijvingsjaar >= 2018) %>%
+  mutate(perc_afgewezen_okt_lag = if_else(is.na(perc_afgewezen_okt_lag), mean(perc_afgewezen_okt_lag, na.rm = TRUE),
+                                                                              perc_afgewezen_okt_lag),
+         .by = c(INS_Inschrijvingsjaar, INS_Opleidingsfase_BPM)) %>%
+  mutate(perc_afgewezen_okt_lag_ratio = perc_afgewezen / perc_afgewezen_okt_lag) %>%
+  select(INS_Inschrijvingsjaar, INS_Opleidingsnaam_2002, INS_Opleidingsfase_BPM, perc_afgewezen_okt_lag_ratio)
+
+dfAanmeldingen_testdag <- dfAanmeldingen_testdag %>%
+  left_join(dfRatios_afwijzingen,
+            by = c("INS_Opleidingsfase_BPM", "INS_Inschrijvingsjaar", "INS_Opleidingsnaam_2002"),
+            relationship = "many-to-one")
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## BEWAAR & RUIM OP ####
