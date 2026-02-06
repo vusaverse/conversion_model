@@ -193,7 +193,7 @@ dfAanmeldingenB <- dfAanmeldingen %>%
   filter(INS_Opleidingsfase_BPM == "B",
          ## GNK is always full anyway, so no need to predict
          #INS_Faculteit != "GNK",
-         INS_Inschrijvingsjaar >= 2018)
+         INS_Inschrijvingsjaar >= 2019)
 
 dfAanmeldingenB_train <- dfAanmeldingenB %>%
   filter(INS_Inschrijvingsjaar != nTest_year)
@@ -207,7 +207,7 @@ vClass_weightsB <- rev(dfAanmeldingenB_train %>%
 
 rf_modelB <- rand_forest(mode = "classification",
                          trees = 219,
-                         mtry = 5) %>%
+                         mtry = 7) %>%
   set_engine("ranger",
              class.weights = vClass_weightsB,
              max.depth = 11,
@@ -270,7 +270,7 @@ dfOutputB <- dfAanmeldingenB %>%
 
 dfAanmeldingenM <- dfAanmeldingen %>%
   filter(INS_Opleidingsfase_BPM == "M",
-         INS_Inschrijvingsjaar >= 2018)
+         INS_Inschrijvingsjaar >= 2019)
 
 dfAanmeldingenM_train <- dfAanmeldingenM %>%
   filter(INS_Inschrijvingsjaar != nTest_year)
