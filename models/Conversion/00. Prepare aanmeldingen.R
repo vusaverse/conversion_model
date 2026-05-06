@@ -65,6 +65,10 @@ vAggregatieniveau = c("INS_Studentnummer", "INS_Opleidingsnaam_2002", "INS_Oplei
 
 dfAanmeldingen <- dfAanmeldingen_raw %>%
   arrange(INS_Inschrijvingsjaar, desc(AAN_Dagen_tot_1_sept)) %>%
+  mutate(INS_Faculteit = case_match(
+    INS_Faculteit,
+    "BA^TA" ~ "BETA",
+    .default = INS_Faculteit)) %>%
   mutate(Dagen_in_substatus = row_number(),
          .by = c(all_of(vAggregatieniveau), AAN_Datum, AAN_Substatus))
 
