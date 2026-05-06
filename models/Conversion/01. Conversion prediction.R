@@ -32,7 +32,10 @@ vColumns <- c(
 dfAS_raw <- get_analysisset(columns = vColumns)
 
 dfAanmeldingen <- read_file_proj("dfAanmeldingen_geprepareerd",
-                dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/")
+                dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/") %>%
+  dplyr::filter(
+    AAN_Status != "Afgewezen"
+  )
 
 
 ## OPLAS for NF and language data, TODO check for more features
@@ -62,13 +65,16 @@ dfOpleidingen <- dfOpleidingen_raw %>%
 
 ## Opleidingen from 2023 onwards are missing NF data still, so create new rows
 vNieuwe_NF <- c("B Gezondheid en Leven", "B Computer Science")
+vExNF2026 <-  c(vNieuwe_NF)
 
 for (extra_jaar in (max(dfOpleidingen$INS_Inschrijvingsjaar) + 1) : (vvconverter::academic_year(lubridate::today()) + 1)) {
   dfOpleidingen <- dfOpleidingen %>%
     filter(INS_Inschrijvingsjaar == max(INS_Inschrijvingsjaar)) %>%
     mutate(INS_Inschrijvingsjaar = extra_jaar,
-           OPL_Numerus_fixus_selectie = if_else(INS_Opleidingsnaam_2002 %in% vNieuwe_NF,
-                                                TRUE, OPL_Numerus_fixus_selectie)) %>%
+           OPL_Numerus_fixus_selectie = case_when(
+             INS_Opleidingsnaam_2002 %in% vNieuwe_NF & INS_Inschrijvingsjaar <= 2025 ~ TRUE,
+             INS_Opleidingsnaam_2002 %in% vExNF2026 & INS_Inschrijvingsjaar >= 2026 ~ FALSE,
+             .default = OPL_Numerus_fixus_selectie)) %>%
     rbind(dfOpleidingen)
 }
 
@@ -102,7 +108,8 @@ dfAanmeldingen <- dfAanmeldingen %>%
          Aanmelding_vanaf_april = month(AAN_Datum) %in% c(4, 5, 6),
          deadlineaanmelder = case_when(
            INS_Opleidingsfase_BPM == "B" & AAN_Datum_aangepast %in% c(as.Date("2024-04-30"),
-                                                                      as.Date("2024-05-01")) ~ TRUE,
+                                                                      as.Date("2024-05-01"),
+                                                                      as.Date("2024-05-02")) ~ TRUE,
 
            INS_Opleidingsfase_BPM == "M" & AAN_Datum_aangepast %in% c(as.Date("2024-05-31"),
                                                                       as.Date("2024-06-01")) ~ TRUE,
@@ -197,8 +204,30 @@ dfAanmeldingenB <- dfAanmeldingen %>%
 
 dfAanmeldingenB_train <- dfAanmeldingenB %>%
   filter(INS_Inschrijvingsjaar != nTest_year)
+
+dfAanmeldingenB_train_NL <- dfAanmeldingenB_train %>%
+  dplyr::filter(
+    INS_Hoogste_vooropleiding_soort != "buitenland"
+  )
+
+dfAanmeldingenB_train_BUI <- dfAanmeldingenB_train %>%
+  dplyr::filter(
+    INS_Hoogste_vooropleiding_soort == "buitenland"
+  )
+
+
 dfAanmeldingenB_test <- dfAanmeldingenB %>%
   filter(INS_Inschrijvingsjaar == nTest_year)
+
+dfAanmeldingenB_test_NL <- dfAanmeldingenB_test %>%
+  dplyr::filter(
+    INS_Hoogste_vooropleiding_soort != "buitenland"
+  )
+
+dfAanmeldingenB_test_BUI <- dfAanmeldingenB_test %>%
+  dplyr::filter(
+    INS_Hoogste_vooropleiding_soort == "buitenland"
+  )
 
 ## Factor order is FALSE, TRUE (so weights are reversed)
 vClass_weightsB <- rev(dfAanmeldingenB_train %>%
@@ -249,6 +278,8 @@ rf_wflowB <- workflow() %>%
   add_recipe(rf_recipeB)
 
 set.seed(652)
+
+
 rf_fitB <- fit(rf_wflowB, dfAanmeldingenB_train)
 
 dfResultB <- rf_fitB %>%
@@ -258,6 +289,32 @@ dfResultB <- rf_fitB %>%
 dfCombined_testB <- dfAanmeldingenB_test %>%
   select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, INS_Opleidingsvorm) %>%
   cbind(dfResultB)
+
+# Separate models for herkomst
+#
+# rf_fitB_NL <- fit(rf_wflowB, dfAanmeldingenB_train_NL)
+# rf_fitB_BUI <- fit(rf_wflowB, dfAanmeldingenB_train_BUI)
+#
+#
+# dfResultB_NL <- rf_fitB_NL %>%
+#   predict(dfAanmeldingenB_test_NL, type = "class") %>%
+#   cbind(predict(rf_fitB_NL, dfAanmeldingenB_test_NL, type = "prob"))
+#
+# dfCombined_testB_NL <- dfAanmeldingenB_test_NL %>%
+#   select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, INS_Opleidingsvorm) %>%
+#   cbind(dfResultB_NL)
+#
+#
+# dfResultB_BUI <- rf_fitB_BUI %>%
+#   predict(dfAanmeldingenB_test_BUI, type = "class") %>%
+#   cbind(predict(rf_fitB_BUI, dfAanmeldingenB_test_BUI, type = "prob"))
+#
+# dfCombined_testB_BUI <- dfAanmeldingenB_test_BUI %>%
+#   select(INS_Studentnummer, INS_Opleidingsnaam_2002, INS_Inschrijvingsjaar, INS_Opleidingsvorm) %>%
+#   cbind(dfResultB_BUI)
+#
+# dfCombined_testB <- dfCombined_testB_NL %>%
+#   bind_rows(dfCombined_testB_BUI)
 
 dfOutputB <- dfAanmeldingenB %>%
   left_join(dfCombined_testB, by = c("INS_Studentnummer", "INS_Opleidingsnaam_2002",
