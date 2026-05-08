@@ -239,6 +239,15 @@ dfOpleidingen <- dfOpleidingen %>%
     OPL_Instructietaal = "Engels"
   ))
 
+dfOpleidingen <- dfOpleidingen %>%
+  rbind(tibble(
+    INS_Opleidingsnaam_2002 = "B Econometrics and Data Science",
+    INS_Inschrijvingsjaar = 2025,
+    OPL_Numerus_fixus_selectie = FALSE,
+    OPL_BSA_EC_eis_aug_jr1 = 42,
+    OPL_Instructietaal = "Engels"
+  ))
+
 
 ## Use result dataset directly, for consistent results regardless of date of upload of results
 dfResultaten_aggr <- dfResultaten %>%

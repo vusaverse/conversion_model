@@ -121,7 +121,6 @@ dfAS_full_raw <- readrds_csv(output = "3. Analyseset/Analysis_set_1.fst", column
          INS_Inschrijvingsjaar %in% c(vTrain_years, vTest_years, vFeature_creation_years),
          INS_Opleidingsfase_BPM == "B",
          INS_Hoofdneven == "Hoofdinschrijving",
-         INS_Indicatie_actief_op_peildatum_status %in% inschrijvingstatus_peildatum,
          !INS_Opleidingsnaam_2002 %in% vUVA_first_opleidingen)
 
 
@@ -145,7 +144,7 @@ lAanmeldingen_bestandspaden <- list.files(
   paste0(Sys.getenv("NETWORK_DIR"),
          "Output/", Sys.getenv("BRANCH"), "/",
          "2. Geprepareerde data/"),
-  pattern = "AAN_Aanmeldingen_per_dag_2",
+  pattern = "AAN_Aanmeldingen_per_dag_202",
   full.names = T)
 
 ## Today
@@ -172,13 +171,6 @@ read_files <- function(bestand) {
     distinct()
 }
 
-
-## Map gives errors when using web drive
-# dfAanmeldingen <- tibble()
-# for (bestand in lAanmeldingen_bestandspaden) {
-#   gc()
-#   dfAanmeldingen <- bind_rows(test, read_files(bestand))
-# }
 
 
 dfAanmeldingen <-
@@ -326,6 +318,14 @@ dfOpleidingen <- dfOpleidingen %>%
   distinct()
 
 
+## Add new opleiding
+dfOpleidingen <- dfOpleidingen %>%
+  rbind(tibble(
+    INS_Opleidingsnaam_2002 = "B Econometrics and Data Science",
+    INS_Inschrijvingsjaar = 2025,
+    OPL_Numerus_fixus_selectie = FALSE,
+    OPL_Instructietaal = "Engels"
+  ))
 
 ## Add number of nominaal students
 dfAS1_agg_nominaal <- dfFirst_year %>%
@@ -577,9 +577,12 @@ dfAS_full <- dfAS_full %>%
 ## Fill NA"s with standard values
 dfAS_full <- dfAS_full %>%
   mutate(
+    ## 1
     across(c(RES_Gem_resultaat_tm_P2, RES_Gemiddeld_cijfer_cum_laatste_poging, RES_Gemiddeld_cijfer_cum_all), ~replace_na(.x, 1)),
+    ## FALSE
     across(c(RES_Thesis_stage_behaald, RES_Poging_2_and_fail_any, Herinschrijving_volgend_jaar,
-             Masteraanmelding), ~replace_na(.x, FALSE)),
+             Masteraanmelding, INS_Tussenjaren_tijdens_B), ~replace_na(.x, FALSE)),
+    ## 0
     across(c(RES_Aantal_herkansingen_totaal, RES_Aantal_EC_tm_P2, RES_Aantal_no_shows_tm_P2,
              RES_Aantal_NVD_cum, RES_EC_perc_BSA, RES_Aantal_herkansingen_tm_P2, RES_Aantal_no_shows_cum,
              RES_Gemiddeld_poging_cum, RES_Aantal_EC_totaal, RES_Aantal_no_shows_voor_jaar,
