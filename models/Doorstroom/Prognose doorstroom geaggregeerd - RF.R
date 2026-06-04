@@ -34,7 +34,7 @@ dfPrognoses_bachelor1 <- read_file_proj("doorstroom_predictions_B1",
                                         add_branch = TRUE,
                                         extension = "csv")
 
-dfPrognoses_bachelor2 <- read_file_proj("doorstroom_predictions_B2+",
+dfPrognoses_bachelor2 <- read_file_proj("doorstroom_predictions_B2",
                                         base_dir = paste0(Sys.getenv("NETWORK_DIR"), "Output/"),
                                         dir = "4. Analyses/Doorstroomprognose/Data/Resultaten",
                                         add_branch = TRUE,
@@ -45,6 +45,7 @@ dfPrognoses_master <- read_file_proj("doorstroom_predictions_M",
                                      dir = "4. Analyses/Doorstroomprognose/Data/Resultaten",
                                      add_branch = TRUE,
                                      extension = "csv")
+
 
 vColumns_to_keep_all <- c(
   "INS_Studentnummer",
@@ -85,7 +86,7 @@ dfPrognose_gecombineerd <- dfPrognoses_bachelor1 %>%
 
 ## Toon VU-brede aantallen
 dfPrognose_gecombineerd %>%
-  group_by(INS_Studiejaar == 1 & INS_Opleidingsfase_BPM == "B", INS_Opleidingsfase_BPM == "B") %>%
+  group_by( INS_Opleidingsfase_BPM, INS_Faculteit) %>%
   summarise(nog_studerend = sum(.pred_Nog.studerend),
             diploma = sum(.pred_Diploma),
             uitval = sum(.pred_Uitval))
