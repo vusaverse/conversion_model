@@ -35,6 +35,16 @@ dfAanmeldingen <- read_file_proj("dfAanmeldingen_geprepareerd",
                 dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/") %>%
   dplyr::filter(
     AAN_Status != "Afgewezen"
+  ) %>%
+  dplyr::mutate(INS_Faculteit =
+                  dplyr::case_when(
+                    INS_Faculteit == "THK" ~ "ACTA",
+                    INS_Faculteit == "FSW" ~ "FSG",
+                    INS_Faculteit == "FRT" ~ "FSG",
+                    INS_Faculteit == "FSW" ~ "FSG",
+                    INS_Faculteit == "FGW" ~ "FSG",
+                    .default = INS_Faculteit
+                  )
   )
 
 
