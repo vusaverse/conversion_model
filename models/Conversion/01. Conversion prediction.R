@@ -31,6 +31,9 @@ vColumns <- c(
 
 dfAS_raw <- get_analysisset(columns = vColumns)
 
+
+
+
 dfAanmeldingen <- read_file_proj("dfAanmeldingen_geprepareerd",
                 dir = "4. Analyses/Instroom komend jaar/Conversieprognose/Geprepareerd/") %>%
   dplyr::filter(
@@ -39,10 +42,9 @@ dfAanmeldingen <- read_file_proj("dfAanmeldingen_geprepareerd",
   dplyr::mutate(INS_Faculteit =
                   dplyr::case_when(
                     INS_Faculteit == "THK" ~ "ACTA",
-                    INS_Faculteit == "FSW" ~ "FSG",
-                    INS_Faculteit == "FRT" ~ "FSG",
-                    INS_Faculteit == "FSW" ~ "FSG",
-                    INS_Faculteit == "FGW" ~ "FSG",
+                    INS_Faculteit == "FSW" ~ "SSW",
+                    INS_Faculteit == "FRT" ~ "SRT",
+                    INS_Faculteit == "FGW" ~ "SGW",
                     .default = INS_Faculteit
                   )
   )
@@ -383,7 +385,7 @@ rf_recipeM <-
   step_novel(AAN_Substatus, AAN_Status) %>%
   step_string2factor(all_nominal_predictors()) %>%
   step_unknown(c(AAN_Substatus, INS_Opleidingsnaam_2002, INS_Hoogste_vooropleiding_soort,
-                 AAN_Soort_aanmelding, AAN_AD_Groep_Omschrijving)) %>%
+                 AAN_Soort_aanmelding, AAN_AD_Groep_Omschrijving, INS_Faculteit)) %>%
   step_rm(all_of(vRemovalsM))
 
 rf_wflowM <- workflow() %>%

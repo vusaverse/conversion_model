@@ -57,3 +57,4 @@ setHook("rstudio.sessionInit", function(newSession) {
     )
   }
 }, action = "append")
+
